@@ -1,0 +1,4 @@
+.env
+/nginx/site-available/*.conf
+/nginx/log/*
+!/nginx/log/.gitkeep
