@@ -47,6 +47,9 @@ RUN apt-get update && \
     ln -s /usr/lib/x86_64-linux-gnu/ImageMagick-6.8.9/bin-Q16/MagickWand-config /usr/bin/ && \
     rm -rf /var/lib/apt/lists/*
 
+RUN printf "\n" | pecl install imagick
+RUN docker-php-ext-enable imagick
+
 # Install Composer globally
 ENV COMPOSER_ALLOW_SUPERUSER 1
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
