@@ -1,4 +1,9 @@
 .env
+/nginx/certs/*.crt
+/nginx/certs/*.key
+/nginx/certs/*.pem
 /nginx/site-available/*.conf
 /nginx/log/*
 !/nginx/log/.gitkeep
+
+.DS_Store

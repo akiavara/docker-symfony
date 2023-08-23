@@ -19,11 +19,14 @@ services:
     env_file: .env
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       # Projects files
       - ${WEBSITES}:/var/www/html:rw,delegated
       # Websites configuration
       - ./nginx/site-available:/etc/nginx/conf.d/:ro
+      # Certs
+      - ./nginx/certs:/etc/nginx/ssl
       # Logs
       - ./nginx/log:/var/log/nginx
     depends_on:
@@ -48,6 +51,8 @@ services:
       - ./php/conf.d/custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
       # SSH keys
       - ~/.ssh:/root/.ssh:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
     depends_on:
       - mysql
     networks:

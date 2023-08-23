@@ -1,42 +1,32 @@
-FROM php:7.3-fpm
+FROM php:8.1.13-fpm-alpine3.16
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apk update && \
+    apk add --no-cache \
         curl \
-        dnsutils \
         git \
-        git-core \
         graphicsmagick \
         gnupg \
         imagemagick \
         jq \
-        libzip-dev \
-        libicu-dev \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libmagickwand-dev \
-        libonig-dev \
+        icu-dev \
         libpng-dev \
         libxslt-dev \
-        libssh2-1-dev \
-        mailutils \
+        libzip-dev \
         mariadb-client \
         moreutils \
         nano \
-        netcat \
         net-tools \
-        p7zip-full \
+        nodejs \
+        npm \
         procps \
-        ssh \
-        telnet \
         unzip \
         vim \
         wget \
-        zip && \
-    docker-php-ext-install \
+        zip
+
+RUN docker-php-ext-install \
         bcmath \
         gd \
-        iconv \
         intl \
         opcache \
         pdo_mysql \
@@ -47,18 +37,15 @@ RUN apt-get update && \
     ln -s /usr/lib/x86_64-linux-gnu/ImageMagick-6.8.9/bin-Q16/MagickWand-config /usr/bin/ && \
     rm -rf /var/lib/apt/lists/*
 
-RUN printf "\n" | pecl install imagick
-RUN docker-php-ext-enable imagick
+#RUN printf "\n" | pecl install imagick
+#RUN docker-php-ext-enable imagick
+
+RUN docker-php-ext-install exif
 
 # Install Composer globally
 ENV COMPOSER_ALLOW_SUPERUSER 1
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    composer global require "hirak/prestissimo:dev-master" --no-suggest --optimize-autoloader --classmap-authoritative
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 ENV PATH "${PATH}:/root/.composer/vendor/bin"
-
-# Install Node.js
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-    apt-get install -y nodejs
 
 # Install Grunt CLI
 RUN npm install -g grunt-cli
@@ -66,4 +53,10 @@ RUN npm install -g grunt-cli
 # Install Yarn
 RUN npm install -g yarn
 
-RUN usermod -u 1000 www-data
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && pecl install xdebug-3.1.3 \
+    && docker-php-ext-enable xdebug \
+    && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+#RUN usermod -u 1000 www-data
